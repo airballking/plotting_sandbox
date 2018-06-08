@@ -44,17 +44,22 @@ class PlottingWorld(object):
                         ColorRGBA(207 / 255.0, 167 / 255.0, 110 / 255.0, 1.0))
         m2 = self.add_mesh_marker(
             1, "package://plotting_sandbox/meshes/electrical-devices/pancake_maker2.stl",
-            PoseStamped(Header(1, rospy.Time.now(), "map"),
+            PoseStamped(Header(0, rospy.Time.now(), "map"),
                         Pose(Point(0.45, 0, 0.72), Quaternion(0, 0, 1, 0))),
                         ColorRGBA(0.3,0.3,0.3,1.0))
 
         m3 = self.add_mesh_marker(
             2, "package://plotting_sandbox/meshes/hand-tools/edeka_spatula2.stl",
-            PoseStamped(Header(1, rospy.Time.now(), "l_gripper_tool_frame"),
+            PoseStamped(Header(0, rospy.Time.now(), "l_gripper_tool_frame"),
                         Pose(Point(-0.01,0,0), Quaternion(0.706825181105366, 0.0, 0.0, 0.7073882691671997))),
                         ColorRGBA(0.3, 0.3, 0.3, 1.0), Vector3(1, 1, 1))
 
-        self.marker_pub.publish(MarkerArray([m1, m2, m3]))
+        m4 = self.add_cylinder_marker(
+            3, PoseStamped(Header(0, rospy.Time.now(), "map"),
+                           Pose(Point(0.47, 0, 0.8), Quaternion(0, 0, 0, 1))),
+            0.11, 0.01, ColorRGBA(241/255.0, 185/255.0, 94/255.0, 1.0))
+
+        self.marker_pub.publish(MarkerArray([m1, m2, m3, m4]))
 
     def publish_joint_state(self):
         # TODO: read from param server
@@ -109,6 +114,28 @@ class PlottingWorld(object):
         m.pose = pose_stamped.pose
         m.scale = scale
         m.mesh_resource = mesh_resource
+        m.color = color
+        return m
+
+    def add_cylinder_marker(self, id, pose_stamped, diameter, height, color=ColorRGBA(0,0,0,1)):
+        """
+
+        :param id:
+        :param pose_stamped:
+        :rtype: PoseStamped
+        :param diameter:
+        :param height:
+        :param color:
+        :return:
+        :rtype: Marker
+        """
+        m = self.sane_empty_marker()
+        m.header = pose_stamped.header
+        m.action = Marker.ADD
+        m.type = Marker.CYLINDER
+        m.id = id
+        m.pose = pose_stamped.pose
+        m.scale = Vector3(diameter, diameter, height)
         m.color = color
         return m
 
