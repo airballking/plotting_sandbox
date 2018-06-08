@@ -37,7 +37,8 @@ class PlottingWorld(object):
         m1 = self.add_mesh_marker(
             0, "package://iai_kitchen/meshes/misc/big_table_1.dae",
             PoseStamped(Header(0, rospy.Time.now(), "map"),
-                        Pose(Point(0.6, 0, 0), Quaternion(0,0,0.7068251811053659, 0.7073882691671998))))
+                        Pose(Point(0.6, 0, 0), Quaternion(0,0,0.7068251811053659, 0.7073882691671998))),
+                        ColorRGBA(207 / 255.0, 167 / 255.0, 110 / 255.0, 1.0))
 
         self.marker_pub.publish(MarkerArray([m1]))
 
@@ -57,7 +58,7 @@ class PlottingWorld(object):
         m.action = Marker.DELETEALL
         return m
 
-    def add_mesh_marker(self, id, mesh_resource, pose_stamped):
+    def add_mesh_marker(self, id, mesh_resource, pose_stamped, color=ColorRGBA(0,0,0,1)):
         """
 
         :param id:
@@ -75,7 +76,7 @@ class PlottingWorld(object):
         m.pose = pose_stamped.pose
         m.scale = Vector3(1, 1, 1)
         m.mesh_resource = mesh_resource
-        m.color = ColorRGBA(0, 0, 0, 1)
+        m.color = color
         return m
 
 
