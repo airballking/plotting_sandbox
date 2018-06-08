@@ -48,7 +48,13 @@ class PlottingWorld(object):
                         Pose(Point(0.45, 0, 0.72), Quaternion(0, 0, 1, 0))),
                         ColorRGBA(0.3,0.3,0.3,1.0))
 
-        self.marker_pub.publish(MarkerArray([m1, m2]))
+        m3 = self.add_mesh_marker(
+            2, "package://plotting_sandbox/meshes/hand-tools/edeka_spatula2.stl",
+            PoseStamped(Header(1, rospy.Time.now(), "l_gripper_tool_frame"),
+                        Pose(Point(-0.01,0,0), Quaternion(0.706825181105366, 0.0, 0.0, 0.7073882691671997))),
+                        ColorRGBA(0.3, 0.3, 0.3, 1.0), Vector3(1, 1, 1))
+
+        self.marker_pub.publish(MarkerArray([m1, m2, m3]))
 
     def publish_joint_state(self):
         # TODO: read from param server
