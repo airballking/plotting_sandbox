@@ -7,17 +7,20 @@ import geometry_msgs
 from visualization_msgs.msg import Marker, MarkerArray
 from std_msgs.msg import ColorRGBA, Header
 from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion, Vector3
+from sensor_msgs.msg import JointState
 
 class PlottingWorld(object):
     def __init__(self):
         self.tf_broadcoaster = tf2_ros.StaticTransformBroadcaster()
         self.marker_pub = rospy.Publisher("/visualization_marker_array", MarkerArray, queue_size=5)
+        self.js_pub = rospy.Publisher("/new_joint_states", JointState, queue_size=5)
         self.marker_ns = "plotting_world"
 
     def publish(self):
         self.clear_world()
         self.publish_robot_loc()
         self.publish_scene()
+        self.publish_joint_state()
 
     def clear_world(self):
         self.marker_pub.publish(MarkerArray([self.clear_all_marker()]))
@@ -46,6 +49,25 @@ class PlottingWorld(object):
                         ColorRGBA(0.3,0.3,0.3,1.0))
 
         self.marker_pub.publish(MarkerArray([m1, m2]))
+
+    def publish_joint_state(self):
+        # TODO: read from param server
+        js = {'head_pan_joint': 0.25,
+              'head_tilt_joint': 0.97,
+              'torso_lift_joint': 0.3,
+              'r_shoulder_pan_joint': -1.31,
+              'r_shoulder_lift_joint': 1.28,
+              'r_upper_arm_roll_joint': -1.45,
+              'r_forearm_roll_joint': -1.13,
+              'r_elbow_flex_joint': -0.24,
+              'r_wrist_flex_joint': -0.19}
+
+        js_msg = JointState()
+        js_msg.header.stamp = rospy.Time.now()
+        for name in js:
+            js_msg.name.append(name)
+            js_msg.position.append(js[name])
+        self.js_pub.publish(js_msg)
 
     def sane_empty_marker(self):
         """
