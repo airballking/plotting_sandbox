@@ -63,6 +63,7 @@ class PlottingWorld(object):
 
     def publish_joint_state(self):
         # TODO: read from param server
+        # standard config
         js = {'head_pan_joint': 0.25,
               'head_tilt_joint': 0.97,
               'torso_lift_joint': 0.3,
@@ -71,7 +72,14 @@ class PlottingWorld(object):
               'r_upper_arm_roll_joint': -1.45,
               'r_forearm_roll_joint': -1.13,
               'r_elbow_flex_joint': -0.24,
-              'r_wrist_flex_joint': -0.19}
+              'r_wrist_flex_joint': -0.19,
+              'l_shoulder_pan_joint': 1.15,
+              'l_shoulder_lift_joint': 0.07,
+              'l_upper_arm_roll_joint': 1.52,
+              'l_forearm_roll_joint': 0.64,
+              'l_elbow_flex_joint': -1.2,
+              'l_wrist_flex_joint': -1.49,
+              'l_wrist_roll_joint': 3.08}
 
         js_msg = JointState()
         js_msg.header.stamp = rospy.Time.now()
@@ -80,7 +88,7 @@ class PlottingWorld(object):
             js_msg.position.append(js[name])
         self.js_pub.publish(js_msg)
 
-    def sane_empty_marker(self):
+    def sane_empty_marker(self, id):
         """
 
         :return: Empty marker filled with sane defaults.
@@ -89,10 +97,12 @@ class PlottingWorld(object):
         m = Marker()
         m.header.stamp = rospy.Time.now()
         m.ns = self.marker_ns
+        m.id = id
+        m.frame_locked = True
         return m
 
-    def clear_all_marker(self):
-        m = self.sane_empty_marker()
+    def clear_all_marker(self, id=0):
+        m = self.sane_empty_marker(id)
         m.action = Marker.DELETEALL
         return m
 
@@ -106,11 +116,10 @@ class PlottingWorld(object):
         :return: Correctly filled marker to add the mesh at the given pose.
         :rtype: Marker
         """
-        m = self.sane_empty_marker()
+        m = self.sane_empty_marker(id)
         m.header = pose_stamped.header
         m.action = Marker.ADD
         m.type = Marker.MESH_RESOURCE
-        m.id = id
         m.pose = pose_stamped.pose
         m.scale = scale
         m.mesh_resource = mesh_resource
@@ -129,11 +138,10 @@ class PlottingWorld(object):
         :return:
         :rtype: Marker
         """
-        m = self.sane_empty_marker()
+        m = self.sane_empty_marker(id)
         m.header = pose_stamped.header
         m.action = Marker.ADD
         m.type = Marker.CYLINDER
-        m.id = id
         m.pose = pose_stamped.pose
         m.scale = Vector3(diameter, diameter, height)
         m.color = color
