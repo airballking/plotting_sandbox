@@ -4,7 +4,7 @@ A sandbox for plotting scripts for papers, projects, etc.
 ## Installation
 Using ```catkin_tools``` and ```wstool``` in a new workspace for ```ROS Kinetic```:
 ```
-source /opt/ros/indigo/setup.bash          # start using ROS Indigo
+source /opt/ros/kinetic/setup.bash          # start using ROS Indigo
 mkdir -p ~/plotting_ws/src                  # create directory for workspace
 cd ~/plotting_ws                            # go to workspace directory
 catkin init                                # init workspace
