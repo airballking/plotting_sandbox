@@ -3,21 +3,17 @@ A sandbox for plotting scripts for papers, projects, etc.
 
 ## Installation
 Using ```catkin_tools``` and ```wstool``` in a new workspace for ```ROS Kinetic```:
+```shell
+source /opt/ros/kinetic/setup.bash
+mkdir -p ~/plotting_ws/src
+cd ~/plotting_ws
+catkin init
+cd src
+wstool init
+wstool merge https://raw.githubusercontent.com/airballking/plotting_sandbox/master/rosinstall/kinetic.rosinstall
+wstool update
+rosdep install --ignore-src --from-paths .
+cd ..
+catkin build
+source ~/plotting_ws/devel/setup.bash
 ```
-source /opt/ros/kinetic/setup.bash          # start using ROS Indigo
-mkdir -p ~/plotting_ws/src                  # create directory for workspace
-cd ~/plotting_ws                            # go to workspace directory
-catkin init                                # init workspace
-cd src                                     # go to source directory of workspace
-wstool init                                # init rosinstall
-```
-
-OLD STUFF BELOW:
-```
-wstool merge https://raw.githubusercontent.com/SemRoCo/giskard_core/master/rosinstall/catkin.rosinstall
-                                           # update rosinstall file
-wstool update                              # pull source repositories
-rosdep install --ignore-src --from-paths . # install dependencies available through apt
-cd ..                                      # go to workspace directory
-catkin build                               # build packages
-source ~/giskard_ws/devel/setup.bash       # source new overlay
