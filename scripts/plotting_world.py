@@ -39,8 +39,13 @@ class PlottingWorld(object):
             PoseStamped(Header(0, rospy.Time.now(), "map"),
                         Pose(Point(0.6, 0, 0), Quaternion(0,0,0.7068251811053659, 0.7073882691671998))),
                         ColorRGBA(207 / 255.0, 167 / 255.0, 110 / 255.0, 1.0))
+        m2 = self.add_mesh_marker(
+            1, "package://plotting_sandbox/meshes/electrical-devices/pancake_maker2.stl",
+            PoseStamped(Header(1, rospy.Time.now(), "map"),
+                        Pose(Point(0.45, 0, 0.72), Quaternion(0, 0, 1, 0))),
+                        ColorRGBA(0.3,0.3,0.3,1.0))
 
-        self.marker_pub.publish(MarkerArray([m1]))
+        self.marker_pub.publish(MarkerArray([m1, m2]))
 
     def sane_empty_marker(self):
         """
@@ -58,7 +63,7 @@ class PlottingWorld(object):
         m.action = Marker.DELETEALL
         return m
 
-    def add_mesh_marker(self, id, mesh_resource, pose_stamped, color=ColorRGBA(0,0,0,1)):
+    def add_mesh_marker(self, id, mesh_resource, pose_stamped, color=ColorRGBA(0,0,0,1), scale=Vector3(1,1,1)):
         """
 
         :param id:
@@ -74,7 +79,7 @@ class PlottingWorld(object):
         m.type = Marker.MESH_RESOURCE
         m.id = id
         m.pose = pose_stamped.pose
-        m.scale = Vector3(1, 1, 1)
+        m.scale = scale
         m.mesh_resource = mesh_resource
         m.color = color
         return m
