@@ -4,3 +4,6 @@
 - git:
     local-name: iai_cad_tools
     uri: git@github.com:code-iai/iai_cad_tools.git
+- git:
+    local-name: iai_maps
+    uri: git@github.com:code-iai/iai_maps.git
