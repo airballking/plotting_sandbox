@@ -1,3 +1,6 @@
 - git:
     local-name: plotting_sandbox
     uri: git@github.com:airballking/plotting_sandbox.git
+- git:
+    local-name: iai_cad_tools
+    uri: git@github.com:code-iai/iai_cad_tools.git
