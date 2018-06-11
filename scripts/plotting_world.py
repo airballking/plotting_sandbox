@@ -6,8 +6,28 @@ import tf2_ros
 import geometry_msgs
 from visualization_msgs.msg import Marker, MarkerArray
 from std_msgs.msg import ColorRGBA, Header
-from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion, Vector3
+from geometry_msgs.msg import PoseStamped, Pose, TransformStamped, Transform, Point, Quaternion, Vector3
 from sensor_msgs.msg import JointState
+
+def from_point(point_msg):
+    """
+    
+    :param point_msg:
+    :type point_msg: Point 
+    :return: 
+    :rtype Vector3
+    """
+    return Vector3(point_msg.x, point_msg.y, point_msg.z)
+
+def from_pose(pose_msg):
+    """
+
+    :param pose_msg:
+    :type pose_msg: Pose
+    :return:
+    :rtype: Transform
+    """
+    return Transform(from_point(pose_msg.position), pose_msg.orientation)
 
 class PlottingWorld(object):
     def __init__(self):
@@ -46,7 +66,7 @@ class PlottingWorld(object):
         robot_state['joint_state'] = js_msg
 
         # TODO: read localization from param server
-        t = geometry_msgs.msg.TransformStamped()
+        t = TransformStamped()
         t.header.stamp = rospy.Time.now()
         t.header.frame_id = "map"
         t.child_frame_id = "base_footprint"
@@ -93,7 +113,13 @@ class PlottingWorld(object):
         self.js_pub.publish(self.robot_state['joint_state'])
 
     def publish_scene(self):
-        # TODO: publish TF
+        # publish object poses to TF
+        transforms = []
+        for obj in self.objects:
+            transforms.append(TransformStamped(obj.header, 'object{}_frame'.format(obj.id), from_pose(obj.pose)))
+        self.tf_broadcoaster.sendTransform(transforms)
+
+        # publish markers to RVIZ
         self.marker_pub.publish(MarkerArray(self.objects))
 
     def sane_empty_marker(self, id):
