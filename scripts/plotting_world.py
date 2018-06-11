@@ -16,6 +16,7 @@ class PlottingWorld(object):
         self.js_pub = rospy.Publisher("/new_joint_states", JointState, queue_size=5)
         self.marker_ns = "plotting_world"
         self.robot_state = self.read_robot_state()
+        self.objects = self.read_objects()
 
     def read_robot_state(self):
         robot_state = {}
@@ -54,20 +55,8 @@ class PlottingWorld(object):
 
         return robot_state
 
-    def publish(self):
-        self.clear_world()
-        self.publish_robot_state()
-        self.publish_scene()
-
-    def clear_world(self):
-        self.marker_pub.publish(MarkerArray([self.clear_all_marker()]))
-
-    def publish_robot_state(self):
-        self.tf_broadcoaster.sendTransform(self.robot_state['localization'])
-        self.js_pub.publish(self.robot_state['joint_state'])
-
-    def publish_scene(self):
-        # TODO: read from param server
+    def read_objects(self):
+        # TODO: read objects from param server
         m1 = self.add_mesh_marker(
             0, "package://iai_kitchen/meshes/misc/big_table_1.dae",
             PoseStamped(Header(0, rospy.Time.now(), "map"),
@@ -89,8 +78,23 @@ class PlottingWorld(object):
             3, PoseStamped(Header(0, rospy.Time.now(), "map"),
                            Pose(Point(0.47, 0, 0.8), Quaternion(0, 0, 0, 1))),
             0.11, 0.01, ColorRGBA(241/255.0, 185/255.0, 94/255.0, 1.0))
+        return (m1, m2, m3, m4)
 
-        self.marker_pub.publish(MarkerArray([m1, m2, m3, m4]))
+    def publish(self):
+        self.clear_world()
+        self.publish_robot_state()
+        self.publish_scene()
+
+    def clear_world(self):
+        self.marker_pub.publish(MarkerArray([self.clear_all_marker()]))
+
+    def publish_robot_state(self):
+        self.tf_broadcoaster.sendTransform(self.robot_state['localization'])
+        self.js_pub.publish(self.robot_state['joint_state'])
+
+    def publish_scene(self):
+        # TODO: publish TF
+        self.marker_pub.publish(MarkerArray(self.objects))
 
     def sane_empty_marker(self, id):
         """
