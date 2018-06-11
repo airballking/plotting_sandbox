@@ -15,3 +15,8 @@ joints:
   l_elbow_flex_joint: -1.2
   l_wrist_flex_joint: -1.49
   l_wrist_roll_joint: 3.08
+localization:
+  frame_id: map
+  child_frame_id: base_footprint
+  translation: [0.0, 0.0, 0.0]
+  rotation: [0.0, 0.0, 0.0, 1.0]

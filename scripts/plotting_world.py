@@ -8,6 +8,7 @@ from std_msgs.msg import ColorRGBA, Header
 from geometry_msgs.msg import PoseStamped, Pose, TransformStamped, Transform, Point, Quaternion, Vector3
 from sensor_msgs.msg import JointState
 
+
 def from_point(point_msg):
     """
     
@@ -18,6 +19,7 @@ def from_point(point_msg):
     """
     return Vector3(point_msg.x, point_msg.y, point_msg.z)
 
+
 def from_pose(pose_msg):
     """
 
@@ -27,6 +29,26 @@ def from_pose(pose_msg):
     :rtype: Transform
     """
     return Transform(from_point(pose_msg.position), pose_msg.orientation)
+
+
+def read_transform_from_param_server(namespace):
+    """
+    Reads the content of a stamped transform from the parameter server.
+    :param namespace: ROS parameter namespace within which to search.
+    :type namespace: String
+    :return: Instantiated stamped transform
+    :rtype: TransformStamped
+    """
+    t = TransformStamped()
+
+    t.header.stamp = rospy.Time.now()
+    t.header.frame_id = rospy.get_param('{}/frame_id'.format(namespace))
+    t.child_frame_id = rospy.get_param('{}/child_frame_id'.format(namespace))
+    t.transform.rotation = Quaternion(*rospy.get_param('{}/rotation'.format(namespace)))
+    t.transform.translation = Point(*rospy.get_param('{}/translation'.format(namespace)))
+
+    return t
+
 
 class PlottingWorld(object):
     def __init__(self):
@@ -49,13 +71,8 @@ class PlottingWorld(object):
             js_msg.position.append(js[name])
         robot_state['joint_state'] = js_msg
 
-        # TODO: read localization from param server
-        t = TransformStamped()
-        t.header.stamp = rospy.Time.now()
-        t.header.frame_id = "map"
-        t.child_frame_id = "base_footprint"
-        t.transform.rotation.w = 1.0
-        robot_state['localization'] = t
+        # read localization from param server
+        robot_state['localization'] = read_transform_from_param_server('~localization')
 
         return robot_state
 
