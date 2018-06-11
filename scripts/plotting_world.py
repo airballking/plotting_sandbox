@@ -15,25 +15,56 @@ class PlottingWorld(object):
         self.marker_pub = rospy.Publisher("/visualization_marker_array", MarkerArray, queue_size=5)
         self.js_pub = rospy.Publisher("/new_joint_states", JointState, queue_size=5)
         self.marker_ns = "plotting_world"
+        self.robot_state = self.read_robot_state()
 
-    def publish(self):
-        self.clear_world()
-        self.publish_robot_loc()
-        self.publish_scene()
-        self.publish_joint_state()
+    def read_robot_state(self):
+        robot_state = {}
 
-    def clear_world(self):
-        self.marker_pub.publish(MarkerArray([self.clear_all_marker()]))
+        # TODO: read joint state from param server
+        js = {'head_pan_joint': 0.25,
+              'head_tilt_joint': 0.97,
+              'torso_lift_joint': 0.3,
+              'r_shoulder_pan_joint': -1.31,
+              'r_shoulder_lift_joint': 1.28,
+              'r_upper_arm_roll_joint': -1.45,
+              'r_forearm_roll_joint': -1.13,
+              'r_elbow_flex_joint': -0.24,
+              'r_wrist_flex_joint': -0.19,
+              'l_shoulder_pan_joint': 1.15,
+              'l_shoulder_lift_joint': 0.07,
+              'l_upper_arm_roll_joint': 1.52,
+              'l_forearm_roll_joint': 0.64,
+              'l_elbow_flex_joint': -1.2,
+              'l_wrist_flex_joint': -1.49,
+              'l_wrist_roll_joint': 3.08}
+        js_msg = JointState()
+        js_msg.header.stamp = rospy.Time.now()
+        for name in js:
+            js_msg.name.append(name)
+            js_msg.position.append(js[name])
+        robot_state['joint_state'] = js_msg
 
-    def publish_robot_loc(self):
-        # TODO: read from param server
+        # TODO: read localization from param server
         t = geometry_msgs.msg.TransformStamped()
         t.header.stamp = rospy.Time.now()
         t.header.frame_id = "map"
         t.child_frame_id = "base_footprint"
         t.transform.rotation.w = 1.0
+        robot_state['localization'] = t
 
-        self.tf_broadcoaster.sendTransform(t)
+        return robot_state
+
+    def publish(self):
+        self.clear_world()
+        self.publish_robot_state()
+        self.publish_scene()
+
+    def clear_world(self):
+        self.marker_pub.publish(MarkerArray([self.clear_all_marker()]))
+
+    def publish_robot_state(self):
+        self.tf_broadcoaster.sendTransform(self.robot_state['localization'])
+        self.js_pub.publish(self.robot_state['joint_state'])
 
     def publish_scene(self):
         # TODO: read from param server
@@ -60,33 +91,6 @@ class PlottingWorld(object):
             0.11, 0.01, ColorRGBA(241/255.0, 185/255.0, 94/255.0, 1.0))
 
         self.marker_pub.publish(MarkerArray([m1, m2, m3, m4]))
-
-    def publish_joint_state(self):
-        # TODO: read from param server
-        # standard config
-        js = {'head_pan_joint': 0.25,
-              'head_tilt_joint': 0.97,
-              'torso_lift_joint': 0.3,
-              'r_shoulder_pan_joint': -1.31,
-              'r_shoulder_lift_joint': 1.28,
-              'r_upper_arm_roll_joint': -1.45,
-              'r_forearm_roll_joint': -1.13,
-              'r_elbow_flex_joint': -0.24,
-              'r_wrist_flex_joint': -0.19,
-              'l_shoulder_pan_joint': 1.15,
-              'l_shoulder_lift_joint': 0.07,
-              'l_upper_arm_roll_joint': 1.52,
-              'l_forearm_roll_joint': 0.64,
-              'l_elbow_flex_joint': -1.2,
-              'l_wrist_flex_joint': -1.49,
-              'l_wrist_roll_joint': 3.08}
-
-        js_msg = JointState()
-        js_msg.header.stamp = rospy.Time.now()
-        for name in js:
-            js_msg.name.append(name)
-            js_msg.position.append(js[name])
-        self.js_pub.publish(js_msg)
 
     def sane_empty_marker(self, id):
         """
