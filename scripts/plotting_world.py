@@ -31,6 +31,22 @@ def from_pose(pose_msg):
     return Transform(from_point(pose_msg.position), pose_msg.orientation)
 
 
+def read_js_from_param_server(namespace):
+    """
+    Reads the content of a robot joint state from the parameter server.
+    :param namespace: ROS parameter namespace within which to search.
+    :return: Instanstiated joint state
+    :rtype: JointState
+    """
+    js = rospy.get_param(namespace)
+    js_msg = JointState()
+    js_msg.header.stamp = rospy.Time.now()
+    for name in js:
+        js_msg.name.append(name)
+        js_msg.position.append(js[name])
+    return js_msg
+
+
 def read_transform_from_param_server(namespace):
     """
     Reads the content of a stamped transform from the parameter server.
@@ -52,29 +68,16 @@ def read_transform_from_param_server(namespace):
 
 class PlottingWorld(object):
     def __init__(self):
-        self.tf_broadcoaster = tf2_ros.StaticTransformBroadcaster()
+        self.tf_broadcaster = tf2_ros.StaticTransformBroadcaster()
         self.marker_pub = rospy.Publisher("/visualization_marker_array", MarkerArray, queue_size=5)
         self.js_pub = rospy.Publisher("/new_joint_states", JointState, queue_size=5)
         self.marker_ns = "plotting_world"
-        self.robot_state = self.read_robot_state()
+
+        self.robot_state = dict()
+        self.robot_state['joint_state'] = read_js_from_param_server('~joints')
+        self.robot_state['localization'] = read_transform_from_param_server('~localization')
+
         self.objects = self.read_objects()
-
-    def read_robot_state(self):
-        robot_state = {}
-
-        # read joint state from param server
-        js = rospy.get_param('~joints')
-        js_msg = JointState()
-        js_msg.header.stamp = rospy.Time.now()
-        for name in js:
-            js_msg.name.append(name)
-            js_msg.position.append(js[name])
-        robot_state['joint_state'] = js_msg
-
-        # read localization from param server
-        robot_state['localization'] = read_transform_from_param_server('~localization')
-
-        return robot_state
 
     def read_objects(self):
         # TODO: read objects from param server
@@ -122,7 +125,7 @@ class PlottingWorld(object):
         Publishes the robots joint state and base localization to the joint_state_publisher and TF, respectively.
         :return: Nothing.
         """
-        self.tf_broadcoaster.sendTransform(self.robot_state['localization'])
+        self.tf_broadcaster.sendTransform(self.robot_state['localization'])
         self.js_pub.publish(self.robot_state['joint_state'])
 
     def publish_scene(self):
@@ -134,7 +137,7 @@ class PlottingWorld(object):
         transforms = []
         for obj in self.objects:
             transforms.append(TransformStamped(obj.header, 'object{}_frame'.format(obj.id), from_pose(obj.pose)))
-        self.tf_broadcoaster.sendTransform(transforms)
+        self.tf_broadcaster.sendTransform(transforms)
 
         # publish markers to RVIZ
         self.marker_pub.publish(MarkerArray(self.objects))
