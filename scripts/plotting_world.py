@@ -3,7 +3,6 @@
 
 import rospy
 import tf2_ros
-import geometry_msgs
 from visualization_msgs.msg import Marker, MarkerArray
 from std_msgs.msg import ColorRGBA, Header
 from geometry_msgs.msg import PoseStamped, Pose, TransformStamped, Transform, Point, Quaternion, Vector3
@@ -41,23 +40,8 @@ class PlottingWorld(object):
     def read_robot_state(self):
         robot_state = {}
 
-        # TODO: read joint state from param server
-        js = {'head_pan_joint': 0.25,
-              'head_tilt_joint': 0.97,
-              'torso_lift_joint': 0.3,
-              'r_shoulder_pan_joint': -1.31,
-              'r_shoulder_lift_joint': 1.28,
-              'r_upper_arm_roll_joint': -1.45,
-              'r_forearm_roll_joint': -1.13,
-              'r_elbow_flex_joint': -0.24,
-              'r_wrist_flex_joint': -0.19,
-              'l_shoulder_pan_joint': 1.15,
-              'l_shoulder_lift_joint': 0.07,
-              'l_upper_arm_roll_joint': 1.52,
-              'l_forearm_roll_joint': 0.64,
-              'l_elbow_flex_joint': -1.2,
-              'l_wrist_flex_joint': -1.49,
-              'l_wrist_roll_joint': 3.08}
+        # read joint state from param server
+        js = rospy.get_param('~joints')
         js_msg = JointState()
         js_msg.header.stamp = rospy.Time.now()
         for name in js:
@@ -101,18 +85,34 @@ class PlottingWorld(object):
         return (m1, m2, m3, m4)
 
     def publish(self):
+        """
+        Publishes all internal state. Afterwards, RVIZ should display the desired world state.
+        :return: Nothing.
+        """
         self.clear_world()
         self.publish_robot_state()
         self.publish_scene()
 
     def clear_world(self):
+        """
+        Tells RVIZ to remove all markers from the canvas.
+        :return: Nothing.
+        """
         self.marker_pub.publish(MarkerArray([self.clear_all_marker()]))
 
     def publish_robot_state(self):
+        """
+        Publishes the robots joint state and base localization to the joint_state_publisher and TF, respectively.
+        :return: Nothing.
+        """
         self.tf_broadcoaster.sendTransform(self.robot_state['localization'])
         self.js_pub.publish(self.robot_state['joint_state'])
 
     def publish_scene(self):
+        """
+        Publishes object poses to TF and object markers to RVIZ.
+        :return: Nothing.
+        """
         # publish object poses to TF
         transforms = []
         for obj in self.objects:

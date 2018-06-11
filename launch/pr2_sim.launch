@@ -1,5 +1,6 @@
 <launch>
   <arg name="use_joint_state_gui" default="false" />
+  <arg name="config_file" default="pr2_pancake_flip_start_action.yaml" />
 
   <include file="$(find pr2_description)/robots/upload_pr2.launch" />
 
@@ -13,5 +14,7 @@
   <node pkg="rviz" type="rviz" name="rviz" required="true"
         args="-d $(find plotting_sandbox)config/standard.rviz" />
 
-  <node pkg="plotting_sandbox" type="plotting_world.py" name="plotting_world" />
+  <node pkg="plotting_sandbox" type="plotting_world.py" name="plotting_world" >
+    <rosparam command="load" file="$(find plotting_sandbox)/config/$(arg config_file)" />
+  </node>
 </launch>
