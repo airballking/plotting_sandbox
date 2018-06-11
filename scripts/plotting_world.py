@@ -80,6 +80,22 @@ def read_transform_from_param_server(namespace):
     return t
 
 
+def decode_pose(pose_dict):
+    """
+    Decodes a stamped pose from a dict read from the ROS parameter server.
+    :param pose_dict: Dict read from the ROS parameter server.
+    :type pose_dict: Dict.
+    :return: Instantiated pose stamp.
+    :rtype: PoseStamped
+    """
+    pose = PoseStamped()
+    pose.header.frame_id = pose_dict['frame_id']
+    pose.header.stamp = rospy.Time.now()
+    pose.pose.position = Point(*pose_dict['translation'])
+    pose.pose.orientation = Quaternion(*pose_dict['rotation'])
+    return pose
+
+
 class PlottingWorld(object):
     def __init__(self):
         self.tf_broadcaster = tf2_ros.StaticTransformBroadcaster()
@@ -94,29 +110,21 @@ class PlottingWorld(object):
         self.objects = self.read_objects()
 
     def read_objects(self):
-        # TODO: read objects from param server
-        m1 = self.add_mesh_marker(
-            0, "package://iai_kitchen/meshes/misc/big_table_1.dae",
-            PoseStamped(Header(0, rospy.Time.now(), "map"),
-                        Pose(Point(0.6, 0, 0), Quaternion(0,0,0.7068251811053659, 0.7073882691671998))),
-                        ColorRGBA(207 / 255.0, 167 / 255.0, 110 / 255.0, 1.0))
-        m2 = self.add_mesh_marker(
-            1, "package://plotting_sandbox/meshes/electrical-devices/pancake_maker2.stl",
-            PoseStamped(Header(0, rospy.Time.now(), "map"),
-                        Pose(Point(0.45, 0, 0.72), Quaternion(0, 0, 1, 0))),
-                        ColorRGBA(0.3,0.3,0.3,1.0))
-
-        m3 = self.add_mesh_marker(
-            2, "package://plotting_sandbox/meshes/hand-tools/edeka_spatula2.stl",
-            PoseStamped(Header(0, rospy.Time.now(), "l_gripper_tool_frame"),
-                        Pose(Point(-0.01,0,0), Quaternion(0.706825181105366, 0.0, 0.0, 0.7073882691671997))),
-                        ColorRGBA(0.3, 0.3, 0.3, 1.0), Vector3(1, 1, 1))
-
-        m4 = self.add_cylinder_marker(
-            3, PoseStamped(Header(0, rospy.Time.now(), "map"),
-                           Pose(Point(0.47, 0, 0.8), Quaternion(0, 0, 0, 1))),
-            0.11, 0.01, ColorRGBA(241/255.0, 185/255.0, 94/255.0, 1.0))
-        return (m1, m2, m3, m4)
+        """
+        Read object definitions from param server.
+        :return: Object definitions read from parameter server.
+        :rtype: list of Marker
+        """
+        objects = []
+        for obj in rospy.get_param('~objects'):
+            if obj['type'] == 'MESH':
+                objects.append(self.add_mesh_marker(len(objects), obj['mesh'], decode_pose(obj['pose']), ColorRGBA(*obj['color'])))
+            elif obj['type'] == 'CYLINDER':
+                objects.append(self.add_cylinder_marker(len(objects), decode_pose(obj['pose']),
+                                                        Vector3(*obj['scale']), ColorRGBA(*obj['color'])))
+            else:
+                raise RuntimeError("Encountered object with unknown type: {}".format(obj))
+        return objects
 
     def publish(self):
         """
@@ -194,15 +202,14 @@ class PlottingWorld(object):
         m.color = color
         return m
 
-    def add_cylinder_marker(self, id, pose_stamped, diameter, height, color=ColorRGBA(0,0,0,1)):
+    def add_cylinder_marker(self, id, pose_stamped, scale, color=ColorRGBA(0,0,0,1)):
         """
 
         :param id:
         :param pose_stamped:
-        :rtype: PoseStamped
-        :param diameter:
-        :param height:
-        :param color:
+        :type pose_stamped: PoseStamped
+        :param scale:
+        :type scale: Vector3
         :return:
         :rtype: Marker
         """
@@ -211,7 +218,7 @@ class PlottingWorld(object):
         m.action = Marker.ADD
         m.type = Marker.CYLINDER
         m.pose = pose_stamped.pose
-        m.scale = Vector3(diameter, diameter, height)
+        m.scale = scale
         m.color = color
         return m
 
