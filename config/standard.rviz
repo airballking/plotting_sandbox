@@ -7,6 +7,7 @@ Panels:
         - /Global Options1
         - /Status1
         - /TF1
+        - /TF1/Frames1
         - /MarkerArray1/Namespaces1
         - /RobotModel1
       Splitter Ratio: 0.798270881
@@ -55,7 +56,7 @@ Visualization Manager:
       Enabled: true
       Frame Timeout: 15
       Frames:
-        All Enabled: false
+        All Enabled: true
         base_bellow_link:
           Value: true
         base_footprint:
@@ -226,6 +227,8 @@ Visualization Manager:
           Value: true
         sensor_mount_link:
           Value: true
+        spatula_front_frame:
+          Value: true
         torso_lift_link:
           Value: true
         torso_lift_motor_screw_link:
@@ -336,6 +339,8 @@ Visualization Manager:
                                           {}
                                     l_gripper_tool_frame:
                                       object2_frame:
+                                        {}
+                                      spatula_front_frame:
                                         {}
                 l_torso_lift_side_plate_link:
                   {}
@@ -836,25 +841,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1.97736335
+      Distance: 1.99001622
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.466844797
-        Y: -0.00840640347
-        Z: 0.808897614
+        X: 0.344460517
+        Y: 0.107614957
+        Z: 0.80599618
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.649796784
+      Pitch: 0.84479636
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 5.05372667
+      Yaw: 5.17374277
     Saved: ~
 Window Geometry:
   Displays:

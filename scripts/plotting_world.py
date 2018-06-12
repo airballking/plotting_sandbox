@@ -72,6 +72,25 @@ def read_js_from_param_server(namespace):
     return js_msg
 
 
+def decode_transfrom(encoded_transform):
+    """
+    Decodes a stamped transform given as read from the parameter server.
+    :param encoded_transform: The transform as read from the parameter server.
+    :type encoded_transform: Dict
+    :return: The stamped transform object.
+    :rtype: TransformStamped
+    """
+    t = TransformStamped()
+
+    t.header.stamp = rospy.Time.now()
+    t.header.frame_id = encoded_transform['frame_id']
+    t.child_frame_id = encoded_transform['child_frame_id']
+    t.transform.rotation = Quaternion(*encoded_transform['rotation'])
+    t.transform.translation = Point(*encoded_transform['translation'])
+
+    return t
+
+
 def read_transform_from_param_server(namespace):
     """
     Reads the content of a stamped transform from the parameter server.
@@ -81,13 +100,11 @@ def read_transform_from_param_server(namespace):
     :rtype: TransformStamped
     """
     t = TransformStamped()
-
     t.header.stamp = rospy.Time.now()
     t.header.frame_id = rospy.get_param('{}/frame_id'.format(namespace))
     t.child_frame_id = rospy.get_param('{}/child_frame_id'.format(namespace))
     t.transform.rotation = Quaternion(*rospy.get_param('{}/rotation'.format(namespace)))
     t.transform.translation = Point(*rospy.get_param('{}/translation'.format(namespace)))
-
     return t
 
 
@@ -121,6 +138,7 @@ class PlottingWorld(object):
         self.robot_state['localization'] = read_transform_from_param_server('~localization')
 
         self.objects = self.read_objects()
+        self.frames = self.read_frames()
         self.goals = rospy.get_param('~goals')
 
     def read_goals(self):
@@ -128,6 +146,12 @@ class PlottingWorld(object):
         goals.append({'from_frame_id': 'object2_frame',
                       'to_frame_id': 'object3_frame'})
         return goals
+
+    def read_frames(self):
+        frames = []
+        for frame in rospy.get_param('~frames'):
+            frames.append(decode_transfrom(frame))
+        return frames
 
     def read_objects(self):
         """
@@ -173,14 +197,19 @@ class PlottingWorld(object):
 
     def publish_scene(self):
         """
-        Publishes object poses to TF and object markers to RVIZ.
+        Publishes object poses to TF and object markers to RVIZ. Also publishes additional TF frames.
         :return: Nothing.
         """
         # publish object poses to TF
         transforms = []
         for obj in self.objects:
             transforms.append(TransformStamped(obj.header, 'object{}_frame'.format(obj.id), from_pose(obj.pose)))
-        self.tf_broadcaster.sendTransform(transforms)
+        if transforms:
+            self.tf_broadcaster.sendTransform(transforms)
+
+        # publish additional TF frames
+        if self.frames:
+            self.tf_broadcaster.sendTransform(self.frames)
 
         # publish all markers to RVIZ
         self.marker_pub.publish(MarkerArray(self.objects))
