@@ -14,7 +14,7 @@ joints:
   l_forearm_roll_joint: 0.64
   l_elbow_flex_joint: -1.2
   l_wrist_flex_joint: -1.49
-  l_wrist_roll_joint: 3.08
+  l_wrist_roll_joint: -3.08
 objects:
   - type: MESH
     pose:

@@ -1,5 +1,5 @@
 <launch>
-  <arg name="config_file" default="pr2_pancake_flip_start_action.yaml" />
+  <arg name="config_file" default="pr2_pancake_flip_action_start.yaml" />
 
   <node pkg="plotting_sandbox" type="plotting_world.py" name="plotting_world" >
     <rosparam command="load" file="$(find plotting_sandbox)/config/$(arg config_file)" />
