@@ -1,0 +1,52 @@
+joints:
+  head_pan_joint: 0.25
+  head_tilt_joint: 0.97
+  torso_lift_joint: 0.3
+  r_shoulder_pan_joint: -1.31
+  r_shoulder_lift_joint: 1.28
+  r_upper_arm_roll_joint: -1.45
+  r_forearm_roll_joint: -1.13
+  r_elbow_flex_joint: -0.24
+  r_wrist_flex_joint: -0.19
+  l_shoulder_pan_joint: 0.67
+  l_shoulder_lift_joint: 0.14
+  l_upper_arm_roll_joint: 1.68
+  l_forearm_roll_joint: 0.58
+  l_elbow_flex_joint: -1.15
+  l_wrist_flex_joint: -1.42
+  l_wrist_roll_joint: -3.08
+objects:
+  - type: MESH
+    pose:
+      frame_id: map
+      translation: [0.6, 0, 0]
+      rotation: [0, 0, 0.7068251811053659, 0.7073882691671998]
+    mesh: package://iai_kitchen/meshes/misc/big_table_1.dae
+    color: [0.81, 0.66, 0.43, 0.3]
+  - type: MESH
+    pose:
+      frame_id: map
+      translation: [0.45, 0, 0.72]
+      rotation: [0, 0, 1, 0]
+    mesh: package://plotting_sandbox/meshes/electrical-devices/pancake_maker2.stl
+    color: [0.3, 0.3, 0.3, 1.0]
+  - type: MESH
+    mesh: package://plotting_sandbox/meshes/hand-tools/edeka_spatula2.stl
+    color: [0.3, 0.3, 0.3, 1.0]
+    pose:
+      frame_id: l_gripper_tool_frame
+      translation: [-0.01, 0, 0]
+      rotation: [0.706825181105366, 0.0, 0.0, 0.7073882691671997]
+  - type: CYLINDER
+    color: [0.95, 0.73, 0.37, 1.0]
+    scale: [0.11, 0.11, 0.01]
+    pose:
+      frame_id: map
+      translation: [0.47, 0, 0.8]
+      rotation: [0, 0, 0, 1]
+      scale: [0.11, 0.11, 0.01]
+frames:
+  - frame_id: map
+    child_frame_id: base_footprint
+    translation: [0.0, 0.0, 0.0]
+    rotation: [0.0, 0.0, 0.0, 1.0]
