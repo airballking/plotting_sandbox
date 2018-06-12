@@ -133,19 +133,14 @@ class PlottingWorld(object):
         self.js_pub = rospy.Publisher("/new_joint_states", JointState, queue_size=5)
         self.marker_ns = "plotting_world"
 
-        self.robot_state = dict()
-        self.robot_state['joint_state'] = read_js_from_param_server('~joints')
-        self.robot_state['localization'] = read_transform_from_param_server('~localization')
+        self.joint_state = read_js_from_param_server('~joints')
 
         self.objects = self.read_objects()
         self.frames = self.read_frames()
-        self.goals = rospy.get_param('~goals')
-
-    def read_goals(self):
-        goals = []
-        goals.append({'from_frame_id': 'object2_frame',
-                      'to_frame_id': 'object3_frame'})
-        return goals
+        if rospy.has_param('~goals'):
+            self.goals = rospy.get_param('~goals')
+        else:
+            self.goals = []
 
     def read_frames(self):
         frames = []
@@ -176,7 +171,7 @@ class PlottingWorld(object):
         :return: Nothing.
         """
         self.clear_world()
-        self.publish_robot_state()
+        self.js_pub.publish(self.joint_state)
         self.publish_scene()
         self.publish_goals()
 
@@ -187,13 +182,6 @@ class PlottingWorld(object):
         """
         self.marker_pub.publish(MarkerArray([self.clear_all_marker()]))
 
-    def publish_robot_state(self):
-        """
-        Publishes the robots joint state and base localization to the joint_state_publisher and TF, respectively.
-        :return: Nothing.
-        """
-        self.tf_broadcaster.sendTransform(self.robot_state['localization'])
-        self.js_pub.publish(self.robot_state['joint_state'])
 
     def publish_scene(self):
         """
