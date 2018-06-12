@@ -73,7 +73,7 @@ Visualization Manager:
         plotting_world: true
       Queue Size: 100
       Value: true
-    - Alpha: 1
+    - Alpha: 0.300000012
       Class: rviz/RobotModel
       Collision Enabled: false
       Enabled: true
@@ -533,10 +533,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.739796638
+      Pitch: 0.774796605
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 5.17374229
+      Yaw: 4.87873697
     Saved: ~
 Window Geometry:
   Displays:

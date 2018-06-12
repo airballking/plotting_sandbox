@@ -22,7 +22,7 @@ objects:
       translation: [0.6, 0, 0]
       rotation: [0, 0, 0.7068251811053659, 0.7073882691671998]
     mesh: package://iai_kitchen/meshes/misc/big_table_1.dae
-    color: [0.81, 0.66, 0.43, 1.0]
+    color: [0.81, 0.66, 0.43, 0.3]
   - type: MESH
     pose:
       frame_id: map
