@@ -14,7 +14,7 @@
   <node pkg="rviz" type="rviz" name="rviz" required="true"
         args="-d $(find plotting_sandbox)config/standard.rviz" />
 
-  <node pkg="plotting_sandbox" type="plotting_world.py" name="plotting_world" >
-    <rosparam command="load" file="$(find plotting_sandbox)/config/$(arg config_file)" />
-  </node>
+  <include file="$(find plotting_sandbox)/launch/pub_world.launch" >
+    <arg name="config_file" value="$(arg config_file)" />
+  </include>
 </launch>
