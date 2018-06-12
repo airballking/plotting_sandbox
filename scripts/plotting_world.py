@@ -34,6 +34,17 @@ def from_point(point_msg):
     return Vector3(point_msg.x, point_msg.y, point_msg.z)
 
 
+def from_vec3(msg):
+    """
+
+    :param msg:
+    :type msg: Vector3
+    :return:
+    :rtype: Point
+    """
+    return Point(msg.x, msg.y, msg.z)
+
+
 def from_pose(pose_msg):
     """
 
@@ -99,6 +110,8 @@ def decode_pose(pose_dict):
 class PlottingWorld(object):
     def __init__(self):
         self.tf_broadcaster = tf2_ros.StaticTransformBroadcaster()
+        self.tf_listener = tf2_ros.BufferClient('tf2_buffer_server')
+        self.tf_listener.wait_for_server(rospy.Duration(1.0))
         self.marker_pub = rospy.Publisher("/visualization_marker_array", MarkerArray, queue_size=5)
         self.js_pub = rospy.Publisher("/new_joint_states", JointState, queue_size=5)
         self.marker_ns = "plotting_world"
@@ -108,6 +121,13 @@ class PlottingWorld(object):
         self.robot_state['localization'] = read_transform_from_param_server('~localization')
 
         self.objects = self.read_objects()
+        self.goals = rospy.get_param('~goals')
+
+    def read_goals(self):
+        goals = []
+        goals.append({'from_frame_id': 'object2_frame',
+                      'to_frame_id': 'object3_frame'})
+        return goals
 
     def read_objects(self):
         """
@@ -134,6 +154,7 @@ class PlottingWorld(object):
         self.clear_world()
         self.publish_robot_state()
         self.publish_scene()
+        self.publish_goals()
 
     def clear_world(self):
         """
@@ -161,8 +182,14 @@ class PlottingWorld(object):
             transforms.append(TransformStamped(obj.header, 'object{}_frame'.format(obj.id), from_pose(obj.pose)))
         self.tf_broadcaster.sendTransform(transforms)
 
-        # publish markers to RVIZ
+        # publish all markers to RVIZ
         self.marker_pub.publish(MarkerArray(self.objects))
+
+    def publish_goals(self):
+        goal_markers = []
+        for goal in self.goals:
+            goal_markers.append(self.arrow_marker(len(self.objects) + len(goal_markers), goal['from_frame_id'], goal['to_frame_id']))
+        self.marker_pub.publish(MarkerArray(goal_markers))
 
     def sane_empty_marker(self, id):
         """
@@ -220,6 +247,21 @@ class PlottingWorld(object):
         m.pose = pose_stamped.pose
         m.scale = scale
         m.color = color
+        return m
+
+    def arrow_marker(self, id, from_frame_id, to_frame_id):
+        m = self.sane_empty_marker(id)
+        m.header.frame_id = from_frame_id
+        m.action = Marker.ADD
+        m.type = Marker.ARROW
+        m.scale = Vector3(0.03, 0.06, 0.0)
+        m.color = ColorRGBA(1.0, 0.84, 0.0, 1.0)
+        m.points.append(Point(0, 0, 0))
+        m.points.append(from_vec3(
+            self.tf_listener.lookup_transform(from_frame_id,
+                                              to_frame_id,
+                                              rospy.Time.now(),
+                                              rospy.Duration(1.0)).transform.translation))
         return m
 
 
