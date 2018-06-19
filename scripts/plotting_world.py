@@ -157,7 +157,11 @@ class PlottingWorld(object):
         objects = []
         for obj in rospy.get_param('~objects'):
             if obj['type'] == 'MESH':
-                objects.append(self.add_mesh_marker(len(objects), obj['mesh'], decode_pose(obj['pose']), ColorRGBA(*obj['color'])))
+                if 'scale' in obj.keys():
+                    scale = Vector3(*obj['scale'])
+                else:
+                    scale = Vector3(1, 1, 1)
+                objects.append(self.add_mesh_marker(len(objects), obj['mesh'], decode_pose(obj['pose']), ColorRGBA(*obj['color']), scale))
             elif obj['type'] == 'CYLINDER':
                 objects.append(self.add_cylinder_marker(len(objects), decode_pose(obj['pose']),
                                                         Vector3(*obj['scale']), ColorRGBA(*obj['color'])))
