@@ -248,6 +248,7 @@ class PlottingWorld(object):
         m.scale = scale
         m.mesh_resource = mesh_resource
         m.color = color
+        m.mesh_use_embedded_materials = True
         return m
 
     def add_cylinder_marker(self, id, pose_stamped, scale, color=ColorRGBA(0,0,0,1)):
