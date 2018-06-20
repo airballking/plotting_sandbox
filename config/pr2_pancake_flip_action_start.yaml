@@ -38,7 +38,7 @@ objects:
       translation: [-0.01, 0, 0]
       rotation: [0.706825181105366, 0.0, 0.0, 0.7073882691671997]
   - type: MESH
-    mesh: package://plotting_sandbox/meshes/pancake_big/pancake_big_bb.dae
+    mesh: package://plotting_sandbox/meshes/pancake-big/pancake_big_bb.dae
     color: [0, 0, 0, 0]
     pose:
       frame_id: map
