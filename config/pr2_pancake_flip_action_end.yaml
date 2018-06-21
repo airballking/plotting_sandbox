@@ -8,12 +8,12 @@ joints:
   r_forearm_roll_joint: -1.13
   r_elbow_flex_joint: -0.24
   r_wrist_flex_joint: -0.19
-  l_shoulder_pan_joint: 0.67
-  l_shoulder_lift_joint: 0.14
-  l_upper_arm_roll_joint: 1.68
-  l_forearm_roll_joint: 0.58
-  l_elbow_flex_joint: -1.15
-  l_wrist_flex_joint: -1.42
+  l_shoulder_pan_joint: 0.73
+  l_shoulder_lift_joint: 0.15
+  l_upper_arm_roll_joint: 1.63
+  l_forearm_roll_joint: 0.65
+  l_elbow_flex_joint: -1.18
+  l_wrist_flex_joint: -1.41
   l_wrist_roll_joint: -3.08
 objects:
   - type: MESH
@@ -37,14 +37,14 @@ objects:
       frame_id: l_gripper_tool_frame
       translation: [-0.01, 0, 0]
       rotation: [0.706825181105366, 0.0, 0.0, 0.7073882691671997]
-  - type: CYLINDER
-    color: [0.95, 0.73, 0.37, 1.0]
-    scale: [0.11, 0.11, 0.01]
+  - type: MESH
+    mesh: package://plotting_sandbox/meshes/pancake-big/pancake_big_bb.dae
+    color: [0, 0, 0, 0]
     pose:
       frame_id: map
-      translation: [0.47, 0, 0.8]
-      rotation: [0, 0, 0, 1]
-      scale: [0.11, 0.11, 0.01]
+      translation: [0.47, 0.0, 0.8]
+      rotation: [0.0, 0.0, 0.0, 1]
+
 frames:
   - frame_id: map
     child_frame_id: base_footprint
