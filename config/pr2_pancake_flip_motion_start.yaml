@@ -42,14 +42,13 @@ objects:
       frame_id: l_gripper_tool_frame
       translation: [-0.01, 0, 0]
       rotation: [0.706825181105366, 0.0, 0.0, 0.7073882691671997]
-  - type: CYLINDER
+  - type: MESH
+    mesh: package://plotting_sandbox/meshes/pancake-big/pancake_big_bb.dae
     color: [0.95, 0.73, 0.37, 0.5]
-    scale: [0.11, 0.11, 0.01]
     pose:
       frame_id: map
-      translation: [0.47, 0, 0.8]
-      rotation: [0, 0, 0, 1]
-      scale: [0.11, 0.11, 0.01]
+      translation: [0.47, 0.0, 0.8]
+      rotation: [0.0, 0.0, 0.0, 1]
 goals:
   - from_frame_id: spatula_front_frame
     to_frame_id: object3_frame
